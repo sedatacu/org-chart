@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kuruluş Şeması - Modern Organizasyon Yapısı</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            overflow-x: auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .header h1 {
+            color: #2d3748;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #718096;
+            font-size: 1.1em;
+        }
+
+        .edit-mode-toggle {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .edit-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .edit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .edit-btn.active {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .org-chart {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 40px;
+        }
+
+        .level {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+            width: 100%;
+            position: relative;
+        }
+
+        .level::before {
+            content: '';
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 2px;
+            height: 30px;
+            background: #cbd5e0;
+        }
+
+        .position {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+            min-width: 200px;
+            text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            position: relative;
+        }
+
+        .position:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            border-color: #667eea;
+        }
+
+        .position.level-1 {
+            background: linear-gradient(135deg, #1a365d 0%, #2c5282 100%);
+            color: white;
+            border: none;
+            min-width: 250px;
+        }
+
+        .position.level-2 {
+            background: linear-gradient(135deg, #2b6cb0 0%, #2c5282 100%);
+            color: white;
+            border: none;
+        }
+
+        .position.level-3 {
+            background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+            color: white;
+            border: none;
+        }
+
+        .position.level-4 {
+            background: linear-gradient(135deg, #63b3ed 0%, #4299e1 100%);
+            color: white;
+            border: none;
+        }
+
+        .position.level-5 {
+            background: white;
+            color: #2d3748;
+            border: 2px solid #667eea;
+        }
+
+        .emoji {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .title {
+            font-weight: 700;
+            font-size: 0.95em;
+            margin-bottom: 5px;
+            line-height: 1.3;
+        }
+
+        .name {
+            font-size: 0.85em;
+            opacity: 0.9;
+            font-weight: 500;
+            min-height: 20px;
+        }
+
+        .position.level-5 .title {
+            color: #667eea;
+            font-weight: 700;
+        }
+
+        .position.level-5 .name {
+            color: #4a5568;
+        }
+
+        /* Edit Mode Styles */
+        .edit-mode .name-input {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-size: 0.85em;
+            font-weight: 500;
+            color: inherit;
+            width: 100%;
+            max-width: 150px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .edit-mode .name-input:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.8);
+        }
+
+        .position.level-5.edit-mode .name-input {
+            background: rgba(102, 126, 234, 0.1);
+            border: 2px solid #667eea;
+            color: #2d3748;
+        }
+
+        .position.level-5.edit-mode .name-input:focus {
+            background: rgba(102, 126, 234, 0.2);
+        }
+
+        .name.placeholder {
+            color: rgba(255, 255, 255, 0.6);
+            font-style: italic;
+        }
+
+        .position.level-5 .name.placeholder {
+            color: #cbd5e0;
+        }
+
+        /* Connecting Lines */
+        .branch {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .branch::before {
+            content: '';
+            position: absolute;
+            top: -30px;
+            width: 2px;
+            height: 30px;
+            background: #cbd5e0;
+            left: 50%;
+            transform: translateX(-1px);
+        }
+
+        .multi-branch {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            flex-wrap: wrap;
+            width: 100%;
+            position: relative;
+        }
+
+        .multi-branch::before {
+            content: '';
+            position: absolute;
+            top: -30px;
+            height: 30px;
+            background: #cbd5e0;
+            width: 2px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .position {
+                min-width: 150px;
+                padding: 15px;
+            }
+
+            .emoji {
+                font-size: 2em;
+                margin-bottom: 8px;
+            }
+
+            .level {
+                gap: 20px;
+            }
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75em;
+            margin-top: 10px;
+            font-weight: 600;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 40px;
+            padding-top: 40px;
+            border-top: 2px solid #e2e8f0;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .stat-label {
+            color: #718096;
+            margin-top: 5px;
+        }
+
+        .edit-info {
+            background: #edf2f7;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            color: #2d3748;
+            font-size: 0.95em;
+        }
+
+        .edit-info.hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏢 Kuruluş Şeması</h1>
+            <p>Modern Organizasyon Yapısı - 2026</p>
+        </div>
+
+        <div class="edit-mode-toggle">
+            <button class="edit-btn" onclick="toggleEditMode()" id="editToggleBtn">✏️ Düzenle Modunu Aç</button>
+        </div>
+
+        <div class="edit-info hidden" id="editInfo">
+            📝 Düzenle modunda: Kişi isimlerine tıklayarak değiştirebilir veya yeni isim ekleyebilirsiniz. Değişiklikler otomatik olarak kaydedilir.
+        </div>
+
+        <div class="org-chart">
+            <!-- Level 1: CEO -->
+            <div class="branch">
+                <div class="position level-1">
+                    <span class="emoji">🏢</span>
+                    <div class="title">CEO</div>
+                    <div class="name editable" data-key="ceo">Sibel Tanır</div>
+                </div>
+            </div>
+
+            <!-- Level 2: Genel Müdür & Finans -->
+            <div class="multi-branch" style="gap: 100px;">
+                <div class="branch">
+                    <div class="position level-2">
+                        <span class="emoji">👤</span>
+                        <div class="title">Genel Müdür</div>
+                        <div class="name editable" data-key="gm">Selçuk Çiftçi</div>
+                    </div>
+                </div>
+                <div class="branch">
+                    <div class="position level-2" style="background: linear-gradient(135deg, #2f855a 0%, #22543d 100%);">
+                        <span class="emoji">💰</span>
+                        <div class="title">Finans</div>
+                        <div class="name editable" data-key="finans">Elçin Hanım</div>
+                        <div class="badge">Direktif Rapor</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Level 3: Departmanlar -->
+            <div class="multi-branch">
+                <div class="branch">
+                    <div class="position level-3">
+                        <span class="emoji">🏭</span>
+                        <div class="title">Üretim</div>
+                        <div class="name editable" data-key="uretim">Tayfun Usta</div>
+                    </div>
+                </div>
+                <div class="branch">
+                    <div class="position level-3">
+                        <span class="emoji">🧱</span>
+                        <div class="title">Fabrika</div>
+                        <div class="name editable" data-key="fabrika"></div>
+                    </div>
+                </div>
+                <div class="branch">
+                    <div class="position level-3">
+                        <span class="emoji">🔬</span>
+                        <div class="title">Ar-Ge / Lab</div>
+                        <div class="name editable" data-key="arge"></div>
+                    </div>
+                </div>
+                <div class="branch">
+                    <div class="position level-3">
+                        <span class="emoji">🛒</span>
+                        <div class="title">Satınalma</div>
+                        <div class="name editable" data-key="satinalma"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="multi-branch">
+                <div class="branch">
+                    <div class="position level-3">
+                        <span class="emoji">📣</span>
+                        <div class="title">Pazarlama</div>
+                        <div class="name editable" data-key="pazarlama"></div>
+                    </div>
+                </div>
+                <div class="branch">
+                    <div class="position level-3">
+                        <span class="emoji">👥</span>
+                        <div class="title">İnsan Kaynakları</div>
+                        <div class="name editable" data-key="ik"></div>
+                    </div>
+                </div>
+                <div class="branch">
+                    <div class="position level-3">
+                        <span class="emoji">📦</span>
+                        <div class="title">İdari İşler</div>
+                        <div class="name editable" data-key="idari"></div>
+                    </div>
+                </div>
+                <div class="branch">
+                    <div class="position level-2">
+                        <span class="emoji">👔</span>
+                        <div class="title">GMY (Satış)</div>
+                        <div class="name editable" data-key="gmy">İsmail Ökten</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Level 4: Satış Yapılanması -->
+            <div style="width: 100%; text-align: center;">
+                <h3 style="color: #2d3748; margin: 30px 0 20px 0;">Satış & Operasyon Yapılanması</h3>
+            </div>
+
+            <div class="multi-branch" style="gap: 25px;">
+                <div class="branch">
+                    <div class="position level-4">
+                        <span class="emoji">🌍</span>
+                        <div class="title">Yurtiçi Satış</div>
+                        <div class="name editable" data-key="yici"></div>
+                    </div>
+                </div>
+                <div class="branch">
+                    <div class="position level-4">
+                        <span class="emoji">✈️</span>
+                        <div class="title">Yurtdışı Satış</div>
+                        <div class="name editable" data-key="ydisi">Sedat Acu</div>
+                    </div>
+                </div>
+                <div class="branch">
+                    <div class="position level-4">
+                        <span class="emoji">📐</span>
+                        <div class="title">Proje Sorumlusu</div>
+                        <div class="name editable" data-key="proje">Ardahan Bey</div>
+                    </div>
+                </div>
+                <div class="branch">
+                    <div class="position level-4">
+                        <span class="emoji">🚚</span>
+                        <div class="title">Lojistik / Sevkiyat</div>
+                        <div class="name editable" data-key="lojistik">Erkan Bey</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="multi-branch" style="gap: 25px;">
+                <div class="branch">
+                    <div class="position level-4">
+                        <span class="emoji">💼</span>
+                        <div class="title">Ön Muhasebe & Satış Destek</div>
+                        <div class="name editable" data-key="muhasebe">Nisa Hanım</div>
+                    </div>
+                </div>
+                <div class="branch">
+                    <div class="position level-4">
+                        <span class="emoji">💻</span>
+                        <div class="title">Teknik Ofis</div>
+                        <div class="name editable" data-key="tekofisubasi"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Level 5: Bölgesel Satış -->
+            <div style="width: 100%; text-align: center;">
+                <h3 style="color: #2d3748; margin: 30px 0 20px 0;">Yurtiçi Satış Bölgeleri</h3>
+            </div>
+
+            <div class="multi-branch" style="gap: 30px;">
+                <div class="branch">
+                    <div class="position level-5">
+                        <span class="emoji">📍</span>
+                        <div class="title">Körfez Bölgesi</div>
+                        <div class="name editable" data-key="korfez">Cüneyt Bey</div>
+                    </div>
+                </div>
+                <div class="branch">
+                    <div class="position level-5">
+                        <span class="emoji">📍</span>
+                        <div class="title">Avrupa Bölgesi</div>
+                        <div class="name editable" data-key="avrupa">Gürkan Bey</div>
+                    </div>
+                </div>
+                <div class="branch">
+                    <div class="position level-5">
+                        <span class="emoji">📍</span>
+                        <div class="title">Anadolu Bölgesi</div>
+                        <div class="name editable" data-key="anadolu">İbrahim Bey</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Level 5: Teknik Ofis Ekibi -->
+            <div style="width: 100%; text-align: center;">
+                <h3 style="color: #2d3748; margin: 30px 0 20px 0;">Teknik Ofis Ekibi</h3>
+            </div>
+
+            <div class="multi-branch" style="gap: 30px;">
+                <div class="branch">
+                    <div class="position level-5">
+                        <span class="emoji">🛠️</span>
+                        <div class="title">Teknik Müdür</div>
+                        <div class="name editable" data-key="tekmus">Sedat Acu</div>
+                    </div>
+                </div>
+                <div class="branch">
+                    <div class="position level-5">
+                        <span class="emoji">🚧</span>
+                        <div class="title">Süpervizör</div>
+                        <div class="name editable" data-key="supervizor"></div>
+                    </div>
+                </div>
+                <div class="branch">
+                    <div class="position level-5">
+                        <span class="emoji">📄</span>
+                        <div class="title">Teknik Ofis Elemanı</div>
+                        <div class="name editable" data-key="tekofisel">Funda Hanım</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats -->
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-number">1</div>
+                    <div class="stat-label">CEO</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">2</div>
+                    <div class="stat-label">Üst Yönetim</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">7</div>
+                    <div class="stat-label">Departman</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">20+</div>
+                    <div class="stat-label">Pozisyon</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let editMode = false;
+
+        // LocalStorage'dan verileri yükle
+        function loadData() {
+            const data = localStorage.getItem('orgChartData');
+            if (data) {
+                const parsed = JSON.parse(data);
+                Object.keys(parsed).forEach(key => {
+                    const element = document.querySelector(`[data-key="${key}"]`);
+                    if (element) {
+                        element.textContent = parsed[key];
+                    }
+                });
+            }
+        }
+
+        // Verileri LocalStorage'a kaydet
+        function saveData() {
+            const data = {};
+            document.querySelectorAll('.editable').forEach(el => {
+                data[el.dataset.key] = el.textContent;
+            });
+            localStorage.setItem('orgChartData', JSON.stringify(data));
+        }
+
+        // Düzenle modunu aç/kapat
+        function toggleEditMode() {
+            editMode = !editMode;
+            const btn = document.getElementById('editToggleBtn');
+            const info = document.getElementById('editInfo');
+            const editables = document.querySelectorAll('.editable');
+
+            if (editMode) {
+                btn.textContent = '✅ Düzenle Modunu Kapat';
+                btn.classList.add('active');
+                info.classList.remove('hidden');
+                
+                editables.forEach(el => {
+                    el.style.cursor = 'pointer';
+                    el.style.padding = '4px 8px';
+                    el.style.borderRadius = '4px';
+                    el.style.backgroundColor = 'rgba(102, 126, 234, 0.1)';
+                    el.style.transition = 'all 0.2s ease';
+                    el.addEventListener('click', startEditing);
+                    el.addEventListener('mouseenter', function() {
+                        this.style.backgroundColor = 'rgba(102, 126, 234, 0.2)';
+                    });
+                    el.addEventListener('mouseleave', function() {
+                        this.style.backgroundColor = 'rgba(102, 126, 234, 0.1)';
+                    });
+                });
+            } else {
+                btn.textContent = '✏️ Düzenle Modunu Aç';
+                btn.classList.remove('active');
+                info.classList.add('hidden');
+                
+                editables.forEach(el => {
+                    el.style.cursor = 'default';
+                    el.style.padding = '0';
+                    el.style.borderRadius = '0';
+                    el.style.backgroundColor = 'transparent';
+                    el.removeEventListener('click', startEditing);
+                    el.removeEventListener('mouseenter', null);
+                    el.removeEventListener('mouseleave', null);
+                });
+                saveData();
+            }
+        }
+
+        // İsmi düzenlemeyi başlat
+        function startEditing(e) {
+            if (!editMode) return;
+            
+            const element = e.target;
+            const currentText = element.textContent;
+            
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.value = currentText;
+            input.className = 'name-input';
+            input.style.backgroundColor = 'rgba(102, 126, 234, 0.2)';
+            input.style.border = '2px solid #667eea';
+            input.style.color = element.parentElement.classList.contains('level-5') ? '#2d3748' : 'white';
+            
+            element.textContent = '';
+            element.appendChild(input);
+            input.focus();
+            input.select();
+
+            function finishEditing() {
+                const newText = input.value.trim();
+                element.textContent = newText || currentText;
+                saveData();
+            }
+
+            input.addEventListener('blur', finishEditing);
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    finishEditing();
+                } else if (e.key === 'Escape') {
+                    element.textContent = currentText;
+                }
+            });
+        }
+
+        // Sayfa yüklendiğinde
+        document.addEventListener('DOMContentLoaded', function() {
+            loadData();
+        });
+    </script>
+</body>
+</html>
