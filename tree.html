@@ -198,45 +198,46 @@
     </div>
 
     <script>
-        // Mermaid konfigürasyonu
+        // Mermaid konfigürasyonu - UTF-8 desteğiyle
         mermaid.initialize({ 
             startOnLoad: true, 
             theme: 'default',
             flowchart: {
                 useMaxWidth: true,
                 padding: 20
-            }
+            },
+            securityLevel: 'loose'
         });
 
         const defaultData = `graph TD
-    CEO["🏢 CEO<br/>Sibel Tanır"]
+    CEO["🏢 CEO<br/>Sibel Tanir"]
     
-    CEO --> GM["👤 Genel Müdür<br/>Selçuk Çiftçi"]
-    CEO --> Finans["💰 Finans<br/>Elçin Hanım"]
+    CEO --> GM["👤 Genel Mudur<br/>Selcuk Ciftci"]
+    CEO --> Finans["💰 Finans<br/>Elcin Hanim"]
     
-    GM --> Uretim["🏭 Üretim<br/>Tayfun Usta"]
+    GM --> Uretim["🏭 Uretim<br/>Tayfun Usta"]
     GM --> Fabrika["🧱 Fabrika"]
     GM --> ArGe["🔬 Ar-Ge / Lab"]
-    GM --> Satinalma["🛒 Satınalma"]
+    GM --> Satinalma["🛒 Satinalma"]
     GM --> Pazarlama["📣 Pazarlama"]
-    GM --> IK["👥 İnsan Kaynakları"]
-    GM --> Idari["📦 İdari İşler"]
-    GM --> GMY["👔 GMY - Satış<br/>İsmail Ökten"]
+    GM --> IK["👥 Insan Kaynaklari"]
+    GM --> Idari["📦 Idari Isler"]
+    GM --> GMY["👔 GMY - Satis<br/>Ismail Okten"]
     
-    GMY --> Yici["🌍 Yurtiçi Satış"]
-    GMY --> Ydisi["✈️ Yurtdışı Satış<br/>Sedat Acu"]
+    GMY --> Yici["🌍 Yurtici Satis"]
+    GMY --> Ydisi["✈️ Yurtdisi Satis<br/>Sedat Acu"]
     GMY --> Proje["📐 Proje Sorumlusu<br/>Ardahan Bey"]
     GMY --> Lojistik["🚚 Lojistik<br/>Erkan Bey"]
-    GMY --> Muhasebe["💼 Ön Muhasebe<br/>Nisa Hanım"]
+    GMY --> Muhasebe["💼 On Muhasebe<br/>Nisa Hanim"]
     GMY --> TekOfis["💻 Teknik Ofis"]
     
-    Yici --> Korfez["📍 Körfez<br/>Cüneyt Bey"]
-    Yici --> Avrupa["📍 Avrupa<br/>Gürkan Bey"]
-    Yici --> Anadolu["📍 Anadolu<br/>İbrahim Bey"]
+    Yici --> Korfez["📍 Korfez<br/>Cuneyt Bey"]
+    Yici --> Avrupa["📍 Avrupa<br/>Gurkan Bey"]
+    Yici --> Anadolu["📍 Anadolu<br/>Ibrahim Bey"]
     
-    TekOfis --> TekMud["🛠️ Teknik Müdür<br/>Sedat Acu"]
-    TekOfis --> Supervizor["🚧 Süpervizör"]
-    TekOfis --> TekEleman["📄 Teknik Ofis<br/>Funda Hanım"]
+    TekOfis --> TekMud["🛠️ Teknik Mudur<br/>Sedat Acu"]
+    TekOfis --> Supervizor["🚧 Supervizor"]
+    TekOfis --> TekEleman["📄 Teknik Ofis<br/>Funda Hanim"]
     
     style CEO fill:#1a365d,stroke:#fff,stroke-width:3px,color:#fff
     style GM fill:#2b6cb0,stroke:#fff,stroke-width:2px,color:#fff
@@ -334,13 +335,13 @@
                     link.click();
                 };
 
-                img.src = 'data:image/svg+xml;base64,' + btoa(svgData);
+                img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)));
             } catch (error) {
                 alert('Resim indirme hatası: ' + error.message);
             }
         }
 
-        // Sayfa yüklendığında
+        // Sayfa yüklendığinde
         document.addEventListener('DOMContentLoaded', function() {
             const data = loadData();
             renderDiagram(data);
